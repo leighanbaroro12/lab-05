@@ -1,17 +1,23 @@
 package com.example.listycity
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
@@ -21,7 +27,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,11 +40,16 @@ fun CityListScreen(
     cities: List<City>,
     onAddCity: (City) -> Unit,
     onUpdateCity: (City, City) -> Unit,
+    onDeleteCity: (City) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var newCityName by remember { mutableStateOf("") }
     var newProvinceName by remember { mutableStateOf("") }
     var showAddCityFields by remember { mutableStateOf(false) }
+
+    // below var is for participation exercise- do later
+    var showDeleteCityFields by remember { mutableStateOf(false) }
+
     var selectedCity by remember { mutableStateOf<City?>(null) }
     var editedCityName by remember { mutableStateOf("") }
     var editedProvinceName by remember { mutableStateOf("") }
@@ -44,7 +57,7 @@ fun CityListScreen(
     Column(modifier = modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.Start
         ) {
             FloatingActionButton(
                 modifier = Modifier.padding(16.dp),
@@ -59,7 +72,25 @@ fun CityListScreen(
             ) {
                 Text("+")
             }
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Button (
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .width(100.dp)
+                    .height(60.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(245, 47, 87)),
+                onClick = {
+                    showAddCityFields = false
+                    showDeleteCityFields = true
+                }
+            ) {
+                Text("DELETE")
+            }
         }
+
         if (showAddCityFields) {
             Row(
                 modifier = Modifier
@@ -85,6 +116,7 @@ fun CityListScreen(
 
                 Button(
                     modifier = Modifier.padding(vertical = 12.dp),
+                    shape = RoundedCornerShape(8.dp),
                     onClick = {
                         if (newCityName.isNotBlank() && newProvinceName.isNotBlank()) {
                             onAddCity(
@@ -93,7 +125,6 @@ fun CityListScreen(
                                     province = newProvinceName
                                 )
                             )
-
                             newCityName = ""
                             newProvinceName = ""
                             showAddCityFields = false
@@ -104,7 +135,8 @@ fun CityListScreen(
                 }
             }
         }
-        if (selectedCity != null) {
+
+        if (selectedCity != null && !showDeleteCityFields) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -130,6 +162,7 @@ fun CityListScreen(
 
                 Button(
                     modifier = Modifier.padding(vertical = 12.dp),
+                    shape = RoundedCornerShape(8.dp),
                     onClick = {
                         val cityToUpdate = selectedCity
                         if (
@@ -155,6 +188,49 @@ fun CityListScreen(
                 }
             }
         }
+
+        if (selectedCity != null && showDeleteCityFields) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text("Delete City?")
+                Text(" Delete ${selectedCity!!.name}, ${selectedCity!!.province}")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    shape = RoundedCornerShape(8.dp),
+                    onClick = {
+                        showDeleteCityFields = false
+                        selectedCity = null
+                    }
+                ) {
+                    Text("CANCEL")
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Button(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(245, 47, 87)),
+                    onClick = {
+                        onDeleteCity(selectedCity!!)
+                        showDeleteCityFields = false
+                        selectedCity = null
+                    }
+                ) {
+                    Text("CONFIRM")
+                }
+            }
+        }
+
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(cities) { index, city ->
                 CityRow(
@@ -213,7 +289,8 @@ fun CityListScreenPreview() {
                 City("Calgary", "AB")
             ),
             onAddCity = {},
-            onUpdateCity = { _, _ -> }
+            onUpdateCity = { _, _ -> },
+            onDeleteCity = {}
         )
     }
 }
