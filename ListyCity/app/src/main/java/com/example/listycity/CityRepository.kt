@@ -21,6 +21,7 @@ class CityRepository {
         citiesRef.document(city.name).set(city)
     }
 
+    // This only updates the contents, not the document name
     fun updateCity(oldCity: City, updatedCity: City) {
         citiesRef.document(oldCity.name).set(updatedCity)
     }

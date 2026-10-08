@@ -46,10 +46,7 @@ fun CityListScreen(
     var newCityName by remember { mutableStateOf("") }
     var newProvinceName by remember { mutableStateOf("") }
     var showAddCityFields by remember { mutableStateOf(false) }
-
-    // below var is for participation exercise- do later
     var showDeleteCityFields by remember { mutableStateOf(false) }
-
     var selectedCity by remember { mutableStateOf<City?>(null) }
     var editedCityName by remember { mutableStateOf("") }
     var editedProvinceName by remember { mutableStateOf("") }
